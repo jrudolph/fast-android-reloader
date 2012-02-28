@@ -21,7 +21,7 @@ public class InstrumentationRunner extends Instrumentation {
 
     @Override
     public Application newApplication(ClassLoader cl, String className, Context context) throws InstantiationException, IllegalAccessException, ClassNotFoundException {
-        Log.i(TAG, "App");
+        Log.d(TAG, "App");
         Application app = (Application) customClassLoader.loadClass(className).newInstance();
         try {
             Method m = app.getClass().getDeclaredMethod("attach", Context.class);
@@ -37,18 +37,18 @@ public class InstrumentationRunner extends Instrumentation {
     @Override
     public void callActivityOnCreate(Activity activity, Bundle icicle) {
         Helper.rewireResources(activity, res);
-        Log.i(TAG, activity.getString(0x7f030000));
+        Log.d(TAG, activity.getString(0x7f030000));
 
         super.callActivityOnCreate(activity, icicle);
     }
     @Override
     public Activity newActivity(ClassLoader cl, String className, Intent intent) throws InstantiationException, IllegalAccessException, ClassNotFoundException {
-        Log.i(TAG, "Act1 new");
+        Log.d(TAG, "Act1 new");
         return (Activity) customClassLoader.loadClass(className).newInstance();
     }
     @Override
     public Activity newActivity(Class<?> clazz, Context context, IBinder token, Application application, Intent intent, ActivityInfo info, CharSequence title, Activity parent, String id, Object lastNonConfigurationInstance) throws InstantiationException, IllegalAccessException {
-        Log.i(TAG, "Unexpected newActivity(clazz)");
+        Log.d(TAG, "Unexpected newActivity(clazz)");
         return super.newActivity(clazz, context, token, application, intent, info, title, parent, id, lastNonConfigurationInstance);    //To change body of overridden methods use File | Settings | File Templates.
     }
 
@@ -60,14 +60,14 @@ public class InstrumentationRunner extends Instrumentation {
     public void onCreate(Bundle arguments) {
         res = Helper.createRes(this);
 
-        Log.i(TAG, "arguments: " + arguments.keySet().toString());
+        Log.d(TAG, "arguments: " + arguments.keySet().toString());
         targetClass = arguments.getString("class");
 
         File dexOutputDir = new File("/data/tmp");
         boolean existed = dexOutputDir.exists();
         boolean created = dexOutputDir.mkdir();
 
-        Log.i(TAG, String.format("Existed: %s, created: %s, exists: %s", existed, created, dexOutputDir.exists()));
+        Log.d(TAG, String.format("Existed: %s, created: %s, exists: %s", existed, created, dexOutputDir.exists()));
 
         customClassLoader = new DexClassLoader("/sdcard/test.apk:/sdcard/scala_library_filtered.jar:/sdcard/scala_collection.jar:/sdcard/scala_collection_mutable.jar:/sdcard/scala_collection_immutable.jar:/sdcard/scala_xml.jar:/sdcard/blubber.jar", dexOutputDir.getAbsolutePath(), null, getClass().getClassLoader()) {
             @Override
@@ -76,15 +76,15 @@ public class InstrumentationRunner extends Instrumentation {
                 if (cl == null) {
                     try {
                         cl = findClass(className);
-                        //Log.i(TAG, "Found in self: "+className);
+                        //Log.d(TAG, "Found in self: "+className);
                         return cl;
                     } catch(ClassNotFoundException e) {
-                        //Log.i(TAG, "Looking in parent: "+className);
+                        //Log.d(TAG, "Looking in parent: "+className);
                         return getParent().loadClass(className);
                     }
                 }
                 else {
-                    //Log.i(TAG, "Already loaded: "+className);
+                    //Log.d(TAG, "Already loaded: "+className);
                     return cl;
                 }
             }
@@ -92,7 +92,7 @@ public class InstrumentationRunner extends Instrumentation {
 
         try {
             Class<?> cl = customClassLoader.loadClass(targetClass);
-            Log.i(TAG, "CL: "+cl.getClassLoader());
+            Log.d(TAG, "CL: "+cl.getClassLoader());
         } catch (Exception e) {
             Log.e(TAG, e.getMessage(), e);
         }
@@ -102,7 +102,7 @@ public class InstrumentationRunner extends Instrumentation {
 
     @Override
     public void onStart() {
-        Log.i(TAG, "OnStart");
+        Log.d(TAG, "OnStart");
         Intent intent = new Intent(Intent.ACTION_MAIN);
         intent.setClassName(getTargetContext().getPackageName(), targetClass);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
