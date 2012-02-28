@@ -37,13 +37,13 @@ public class InstrumentationRunner extends Instrumentation {
     @Override
     public void callActivityOnCreate(Activity activity, Bundle icicle) {
         Helper.rewireResources(activity, res);
-        Log.d(TAG, activity.getString(0x7f030000));
+        Log.d(TAG, "Rewiring resources, string = "+activity.getString(0x7f030001));
 
         super.callActivityOnCreate(activity, icicle);
     }
     @Override
     public Activity newActivity(ClassLoader cl, String className, Intent intent) throws InstantiationException, IllegalAccessException, ClassNotFoundException {
-        Log.d(TAG, "Act1 new");
+        Log.d(TAG, "Act1 new: "+className);
         return (Activity) customClassLoader.loadClass(className).newInstance();
     }
     @Override
